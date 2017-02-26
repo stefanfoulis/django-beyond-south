@@ -1,0 +1,6 @@
+{
+    "package-name": "django-beyond-south",
+    "installed-apps": [
+        "django_beyond_south"
+    ]
+}
