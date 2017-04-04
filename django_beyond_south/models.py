@@ -23,15 +23,19 @@ class SouthMigration(models.Model):
         return self.app_name in settings.INSTALLED_APPS
 
 
-# class DjangoMigration(models.Model):
-#     app_name = models.CharField(max_length=255)
-#     migration = models.CharField(max_length=255)
-#     applied = models.DateTimeField()
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'south_migrationhistory'
-#         ordering = (
-#             'app_name',
-#             'migration',
-#         )
+class DjangoMigration(models.Model):
+    app = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    applied = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'django_migrations'
+        ordering = (
+            'app',
+            'name',
+        )
+
+    @property
+    def is_installed(self):
+        return self.app in settings.INSTALLED_APPS

@@ -6,8 +6,9 @@ from pprint import pprint as pp
 from django.utils.importlib import import_module
 import yaml
 from django.conf import settings
+import django.db.utils
 
-from ..models import SouthMigration
+from ..models import SouthMigration, DjangoMigration
 
 
 def _migrations_filenames(directory):
@@ -31,8 +32,6 @@ def _detect_directory(app_directory, directories, samples):
             continue
         with open(os.path.join(migrations_dir, filenames[0]), mode='r') as migration_file:
             file_content = migration_file.read()
-            print(file_content)
-            print(type(file_content))
             if all([str(sample) in file_content for sample in samples]):
                 return migrations_dir
 
@@ -82,12 +81,16 @@ def discover_migrations_in_filesystem(directory_detector):
 
 def discover_migrations_in_db(only_installed=True):
     all_migrations = {}
-    for migration in SouthMigration.objects.all():
-        if only_installed and not migration.is_installed:
-            continue
-        migrations = all_migrations.setdefault(migration.app_name, {})
-        migrations[migration.migration] = None
-    return all_migrations
+    try:
+        for migration in SouthMigration.objects.all():
+            if only_installed and not migration.is_installed:
+                continue
+            migrations = all_migrations.setdefault(migration.app_name, {})
+            migrations[migration.migration] = None
+    except django.db.utils.ProgrammingError:
+        pass
+    finally:
+        return all_migrations
 
 
 def discover_south_migrations():
@@ -152,6 +155,7 @@ def get_migration_mappings_needed(only_installed=True, app_names=None):
     Return the migration mappings needed to switch the current database from
     South to Django Migrations.
     """
+    latest_migrations = {}
     if app_names is None:
         app_names = (
             SouthMigration.objects.all()
@@ -168,8 +172,57 @@ def get_migration_mappings_needed(only_installed=True, app_names=None):
         )
         if only_installed and not latest_migration.is_installed:
             continue
-        print('{}: {}'.format(app_name, latest_migration.migration))
-        return {app_name: latest_migration.migration}
+        latest_migrations[app_name] = latest_migration.migration
+    return latest_migrations
+
+
+def get_migration_for_south_migration(app_name, south_migration, mapping=None):
+    mapping = mapping or load_mapping_from_files()
+    return mapping.get(app_name, {}).get(south_migration, None)
+
+
+def latest_django_migrations(only_installed=True, app_names=None):
+    latest_migrations = {}
+    try:
+        if app_names is None:
+            app_names = (
+                DjangoMigration.objects.all()
+                .only('app')
+                .distinct('app')
+                .values_list('app', flat=True)
+            )
+        for app_name in app_names:
+            latest_migration = (
+                DjangoMigration.objects
+                .filter(app=app_name)
+                .order_by('-name')
+                .first()
+            )
+            if only_installed and not latest_migration.is_installed:
+                continue
+            latest_migrations[app_name] = latest_migration.name
+    except django.db.utils.ProgrammingError:
+        pass
+    finally:
+        return latest_migrations
+
+
+def migration_status(mapping=None):
+    migrations_needed = get_migration_mappings_needed()
+    mapping = mapping or load_mapping_from_files()
+
+    already_migrated = latest_django_migrations()
+    to_migrate = {}
+    missing_mapping = {}
+    for app_name, south_name in migrations_needed.items():
+        if app_name in already_migrated:
+            continue
+        name = get_migration_for_south_migration(app_name, south_name, mapping=mapping)
+        if name:
+            to_migrate[app_name] = (south_name, name)
+        else:
+            missing_mapping[app_name] = south_name
+    return already_migrated, to_migrate, missing_mapping
 
 
 def discover_it():
@@ -186,7 +239,12 @@ def discover_it():
 
 
 def init_django_migrations():
-    # Check we're in Django 1.7+
+    # TODO: Check we're in Django 1.7+
+
+    # TODO: find out which apps need migrating
+
+    needed_migrations = get_migration_mappings_needed()
+
     south_state = discover_migrations_in_db(only_installed=True)
 
     # Lookup applied South migrations and pick the correct Django migration.
