@@ -1,7 +1,8 @@
 Django Beyond South
 ===================
 
-Warning: This is a prototype! Very experimental and messy.
+Warning: This is a prototype! Very experimental and messy. It will not
+         "just work" (yet).
 
 Helps switch from Django 1.6 and South to Django 1.7+ and native django migrations.
 Automates the faking of all migrations to keep a consistent database by maintaining a database of migration mappings.
