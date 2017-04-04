@@ -1,0 +1,5 @@
+djangocms_page_meta:
+  0001_initial: null
+  0002_auto__add_field_titlemeta_og_description__add_field_titlemeta_twitter_: 0001_initial
+  0003_auto__add_field_pagemeta_fb_pages: 0005_pagemeta_fb_pages
+  0004_auto__add_genericmetaattribute__add_unique_genericmetaattribute_page_a: 0006_auto_20160423_1859

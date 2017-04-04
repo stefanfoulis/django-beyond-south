@@ -1,0 +1,9 @@
+reversion:
+  0001_initial: null
+  0002_auto__add_field_version_type: null
+  0003_auto__add_field_version_object_id_int: null
+  0004_populate_object_id_int: null
+  0005_auto__add_field_revision_manager_slug: null
+  0006_remove_delete_revisions: null
+  0007_auto__del_field_version_type: null
+  0008_auto__add_index_revision_date_created: 0001_initial

@@ -1,0 +1,7 @@
+aldryn_style:
+  0001_initial: null
+  0002_cms_table_name_magic_removal: null
+  0003_auto__add_field_style_txt_additional_class_names: null
+  0004_move_additional_class_names_to_text_field: null
+  0005_rename_addional_class_name_field: null
+  0006_auto__add_field_style_label__chg_field_style_additional_class_names: 0001_initial

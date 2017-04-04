@@ -1,0 +1,14 @@
+cmsplugin_filer_image:
+  0001_initial: null
+  0002_auto__add_field_filerimage_image_url__chg_field_filerimage_image: null
+  0003_auto__add_thumbnailoption__add_field_filerimage_thumbnail_option: null
+  0004_auto__del_field_thumbnailoption_is_scaled__del_field_thumbnailoption_i: null
+  0005_rename_float_to_alignment: null
+  0006_auto__add_field_filerimage_original_link: null
+  0007_rename_caption_to_caption_text: null
+  0008_auto__add_field_filerimage_file_link: null
+  0009_auto__add_field_filerimage_use_original_image: null
+  0010_auto__add_field_filerimage_target_blank: null
+  0011_auto__add_field_filerimage_style: null
+  0012_fix_table_names: 0001_initial
+  0013_auto__chg_field_filerimage_image__chg_field_filerimage_file_link: 0002_auto_20160108_1708
